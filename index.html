@@ -3,129 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Me Player Ultra - G5 Velocity Engine</title>
+    <title>Me Player - Safe-Zone Blitz</title>
     <style>
-        /* Base Styling */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-        /* The Main Video Container - The "Safe Zone" */
+        /* [THE MASK] - Middle 100% Visible, Sides 12% Opacity */
+        #ad-underlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10;
+        }
+
         #main-stage {
             position: absolute;
-            top: 5%; left: 5%; width: 90%; height: 90%;
-            z-index: 50; /* Above the background ads */
+            top: 10%; left: 10%; width: 80%; height: 80%;
+            z-index: 100; /* Highest layer for 100% visibility */
             background: #000;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 50px #000;
         }
         iframe#player { width: 100%; height: 100%; border: none; }
 
-        /* Ghost Ad Frame Styling */
-        .ghost-zone {
+        .ghost-unit {
             position: absolute;
-            pointer-events: none; /* User clicks through to the player */
+            pointer-events: none;
             overflow: hidden;
-            z-index: 10; /* Below the main stage */
-            transition: transform 10s linear;
-        }
-
-        /* HUD for Monitoring (Auto-hides) */
-        #hud {
-            position: fixed; top: 10px; left: 10px; color: #00ff00;
-            background: rgba(0,0,0,0.7); padding: 8px; font-size: 11px;
-            border-radius: 5px; z-index: 100; border: 1px solid #333;
+            opacity: 0.12; /* Only the perimeter is dimmed */
+            transition: transform 5s ease;
         }
     </style>
 </head>
 <body>
 
-    <div id="hud">System: Initializing Hardware Sync...</div>
-
     <div id="main-stage">
-        <iframe id="player" src="https://www.youtube.com/embed/LIVE_STREAM_ID" allowfullscreen></iframe>
+        <iframe id="player" src="http://googleusercontent.com/youtube.com/8" allowfullscreen></iframe>
     </div>
 
-    <div id="perimeter-matrix"></div>
+    <div id="ad-underlay"></div>
 
     <script>
-        // --- [ADSTERRA CONFIG] ---
-        // Fill these with your actual Tag IDs from Adsterra
-        const TAG_POOL = ["tag_1", "tag_2", "tag_3", "tag_4", "tag_5", "tag_6"];
+        const TAGS = ["your_tag_1", "your_tag_2"]; // Add all your tags here
 
-        // --- [ADAPTIVE ENGINE] ---
-        function detectHardware() {
+        function getSpec() {
             const ram = navigator.deviceMemory || 4;
-            const isTV = /SmartTV|Android TV|GoogleTV/i.test(navigator.userAgent);
-            
-            if (ram >= 8 && !isTV) {
-                return { name: "PC_BLITZ", splitCount: 3, layers: 2, opacity: 0.12 }; // 24 Ads Perimeter
-            } else {
-                return { name: "TV_STABLE", splitCount: 2, layers: 1, opacity: 0.15 }; // 8 Ads Perimeter
-            }
+            return (ram >= 8) ? { instances: 12, splits: 4 } : { instances: 4, splits: 2 };
         }
 
-        const config = detectHardware();
-        document.getElementById('hud').innerText = `PROFILE: ${config.name} | G5 ACTIVE | OPACITY: ${config.opacity * 100}%`;
+        const spec = getSpec();
 
-        // --- [MATRIX DEPLOYMENT] ---
-        function createZone(side, posIndex, layerNum) {
-            const zone = document.createElement('div');
-            zone.className = 'ghost-zone';
-            zone.style.opacity = config.opacity;
-            
-            // Layout Logic: Divide each side into splitCount zones
-            const size = 100 / config.splitCount;
-            const offset = posIndex * size;
+        function spawnAd(side, pos) {
+            const div = document.createElement('div');
+            div.className = 'ghost-unit';
+            const size = 100 / spec.splits;
+            const offset = pos * size;
 
-            if (side === 'top') {
-                zone.style.top = '0'; zone.style.left = offset + '%';
-                zone.style.width = size + '%'; zone.style.height = '10%';
-            } else if (side === 'bottom') {
-                zone.style.bottom = '0'; zone.style.left = offset + '%';
-                zone.style.width = size + '%'; zone.style.height = '10%';
-            } else if (side === 'left') {
-                zone.style.left = '0'; zone.style.top = offset + '%';
-                zone.style.width = '10%'; zone.style.height = size + '%';
-            } else if (side === 'right') {
-                zone.style.right = '0'; zone.style.top = offset + '%';
-                zone.style.width = '10%'; zone.style.height = size + '%';
-            }
+            // Positioning only in the 10% "Doughnut" perimeter
+            if (side==='top') { div.style.top='0'; div.style.left=offset+'%'; div.style.width=size+'%'; div.style.height='10%'; }
+            if (side==='bottom') { div.style.bottom='0'; div.style.left=offset+'%'; div.style.width=size+'%'; div.style.height='10%'; }
+            if (side==='left') { div.style.left='0'; div.style.top=offset+'%'; div.style.width='10%'; div.style.height=size+'%'; }
+            if (side==='right') { div.style.right='0'; div.style.top=offset+'%'; div.style.width='10%'; div.style.height=size+'%'; }
 
-            // Inject Adsterra Script (Standard Invoke)
-            const tag = TAG_POOL[Math.floor(Math.random() * TAG_POOL.length)];
-            const adScript = document.createElement('script');
-            adScript.type = 'text/javascript';
-            adScript.src = `//pl2345678.highperformanceformat.com/${tag}/invoke.js`; 
-            
-            zone.appendChild(adScript);
-            document.getElementById('perimeter-matrix').appendChild(zone);
+            const tag = TAGS[Math.floor(Math.random()*TAGS.length)];
+            const s = document.createElement('script');
+            s.src = `//pl2345678.highperformanceformat.com/${tag}/invoke.js`; 
+            div.appendChild(s);
+            document.getElementById('ad-underlay').appendChild(div);
         }
 
-        function launchEngine() {
+        function init() {
             const sides = ['top', 'bottom', 'left', 'right'];
-            for (let l = 0; l < config.layers; l++) {
+            for(let i=0; i < spec.instances; i++) {
                 sides.forEach(side => {
-                    for (let s = 0; s < config.splitCount; s++) {
-                        // Staggered boot to avoid browser freeze
-                        setTimeout(() => {
-                            createZone(side, s, l);
-                        }, (l * 1000) + (s * 200));
+                    for(let p=0; p < spec.splits; p++) {
+                        setTimeout(() => spawnAd(side, p), (i*300) + (p*100));
                     }
                 });
             }
         }
 
-        // --- [HUMAN-FLOW SIMULATION] ---
-        // Jitters the ads slightly to bypass static-view detection
-        setInterval(() => {
-            const zones = document.querySelectorAll('.ghost-zone');
-            zones.forEach(z => {
-                const move = (Math.random() * 4) - 2;
-                z.style.transform = `translate(${move}px, ${move}px)`;
-            });
-        }, 12000);
-
-        // Start when ready
-        window.onload = launchEngine;
+        window.onload = init;
     </script>
 </body>
 </html>
