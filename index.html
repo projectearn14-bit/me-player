@@ -3,81 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Me Player - Safe-Zone Blitz</title>
+    <title>Me Player | Ultimate 4K Streaming 2026</title>
+    <link rel="manifest" href="manifest.json">
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
+        :root { --primary: #00d2ff; --bg: #050505; --glass: rgba(255, 255, 255, 0.05); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: white; font-family: 'Inter', sans-serif; }
 
-        /* [THE MASK] - Middle 100% Visible, Sides 12% Opacity */
-        #ad-underlay {
+        /* --- [THE CINEMATIC STAGE] --- */
+        #video-stage {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10;
-        }
-
-        #main-stage {
-            position: absolute;
-            top: 10%; left: 10%; width: 80%; height: 80%;
-            z-index: 100; /* Highest layer for 100% visibility */
-            background: #000;
-            box-shadow: 0 0 50px #000;
+            top: 5%; left: 5%; width: 90%; height: 80%;
+            z-index: 100; border-radius: 20px; overflow: hidden;
+            background: #000; box-shadow: 0 20px 50px rgba(0,0,0,1);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         iframe#player { width: 100%; height: 100%; border: none; }
 
-        .ghost-unit {
-            position: absolute;
-            pointer-events: none;
-            overflow: hidden;
-            opacity: 0.12; /* Only the perimeter is dimmed */
-            transition: transform 5s ease;
+        /* --- [MODERN CONTROL BAR] --- */
+        #controls {
+            position: absolute; bottom: 3%; left: 10%; width: 80%; height: 60px;
+            z-index: 150; background: var(--glass); backdrop-filter: blur(15px);
+            border-radius: 15px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; border: 1px solid rgba(255,255,255,0.1);
         }
+        .btn { background: none; border: none; color: white; cursor: pointer; font-weight: 600; font-size: 14px; }
+        #boost-btn { color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- [THE GHOST ENGINE PERIMETER] --- */
+        .ad-zone {
+            position: absolute; pointer-events: none; z-index: 10;
+            opacity: 0.12; transition: opacity 0.3s;
+        }
+        
+        /* HUD Display */
+        #status-bar { position: fixed; top: 10px; right: 20px; font-size: 10px; color: var(--primary); z-index: 200; opacity: 0.5; }
     </style>
 </head>
 <body>
 
-    <div id="main-stage">
-        <iframe id="player" src="http://googleusercontent.com/youtube.com/8" allowfullscreen></iframe>
+    <div id="status-bar">SYSTEM: 4K NEURAL ENGINE ACTIVE</div>
+
+    <div id="video-stage">
+        <iframe id="player" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
 
-    <div id="ad-underlay"></div>
+    <div id="controls">
+        <div style="display: flex; gap: 20px;">
+            <button class="btn">▶ PLAYING</button>
+            <button class="btn" style="opacity:0.5">4K UHD</button>
+        </div>
+        <button id="boost-btn" class="btn" onclick="handleBoost()">⚡ Boost Stream (Double Points)</button>
+        <button class="btn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
+    </div>
+
+    <div id="grid-system"></div>
 
     <script>
-        const TAGS = ["your_tag_1", "your_tag_2"]; // Add all your tags here
+        // --- [CONFIG & ADSTERRA TAGS] ---
+        const AD_TAGS = ["tag_1", "tag_2", "tag_3", "tag_4"]; // Replace with real IDs
+        const ram = navigator.deviceMemory || 4;
 
-        function getSpec() {
-            const ram = navigator.deviceMemory || 4;
-            return (ram >= 8) ? { instances: 12, splits: 4 } : { instances: 4, splits: 2 };
+        // --- [BLITZ TRIGGER LOGIC] ---
+        let boostCount = 0;
+        function handleBoost() {
+            boostCount++;
+            if(boostCount >= 5) {
+                alert("🚀 NEURAL BOOST ACTIVE: MAX VELOCITY ENGAGED");
+                // Open hidden iframe for more traffic or ping Colab
+                const b = document.createElement('iframe');
+                b.src = window.location.href; b.style.display = "none";
+                document.body.appendChild(b);
+                boostCount = 0;
+            }
         }
 
-        const spec = getSpec();
-
-        function spawnAd(side, pos) {
+        // --- [THE AD ENGINE] ---
+        function spawnAd(side, pos, layer) {
             const div = document.createElement('div');
-            div.className = 'ghost-unit';
-            const size = 100 / spec.splits;
+            div.className = 'ad-zone';
+            const splits = (ram >= 8) ? 4 : 2;
+            const size = 100 / splits;
             const offset = pos * size;
 
-            // Positioning only in the 10% "Doughnut" perimeter
             if (side==='top') { div.style.top='0'; div.style.left=offset+'%'; div.style.width=size+'%'; div.style.height='10%'; }
             if (side==='bottom') { div.style.bottom='0'; div.style.left=offset+'%'; div.style.width=size+'%'; div.style.height='10%'; }
             if (side==='left') { div.style.left='0'; div.style.top=offset+'%'; div.style.width='10%'; div.style.height=size+'%'; }
             if (side==='right') { div.style.right='0'; div.style.top=offset+'%'; div.style.width='10%'; div.style.height=size+'%'; }
 
-            const tag = TAGS[Math.floor(Math.random()*TAGS.length)];
-            const s = document.createElement('script');
-            s.src = `//pl2345678.highperformanceformat.com/${tag}/invoke.js`; 
-            div.appendChild(s);
-            document.getElementById('ad-underlay').appendChild(div);
+            const script = document.createElement('script');
+            const tag = AD_TAGS[Math.floor(Math.random()*AD_TAGS.length)];
+            script.src = `//pl2345678.highperformanceformat.com/${tag}/invoke.js`; 
+            
+            div.appendChild(script);
+            document.getElementById('grid-system').appendChild(div);
         }
 
         function init() {
             const sides = ['top', 'bottom', 'left', 'right'];
-            for(let i=0; i < spec.instances; i++) {
-                sides.forEach(side => {
-                    for(let p=0; p < spec.splits; p++) {
-                        setTimeout(() => spawnAd(side, p), (i*300) + (p*100));
+            const layers = (ram >= 8) ? 2 : 1;
+            const splits = (ram >= 8) ? 4 : 2;
+
+            for(let l=0; l<layers; l++) {
+                sides.forEach(s => {
+                    for(let p=0; p<splits; p++) {
+                        setTimeout(() => spawnAd(s, p, l), (l*800) + (p*150));
                     }
                 });
             }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
         }
 
         window.onload = init;
