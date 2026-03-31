@@ -1,40 +1,131 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Me Player - P12</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Me Player Ultra - G5 Velocity Engine</title>
     <style>
-        body { margin:0; background:#000; overflow:hidden; display:flex; flex-direction:column; height:100vh; font-family:sans-serif; }
-        .ad-top { height:95px; width:100%; display:flex; justify-content:center; align-items:center; background:#050505; border-bottom:1px solid #222; }
-        .main { display:flex; flex:1; position:relative; }
-        .ad-side { width:165px; background:#050505; display:flex; justify-content:center; align-items:center; border-left:1px solid #222; border-right:1px solid #222; }
-        #video-container { flex:1; position:relative; background:#000; }
-        #revenue-trigger { position:absolute; inset:0; z-index:999; cursor:pointer; background:rgba(0,0,0,0.01); }
-        .ad-bottom { min-height:100px; width:100%; background:#050505; display:flex; justify-content:center; align-items:center; border-top:1px solid #222; }
+        /* Base Styling */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        /* The Main Video Container - The "Safe Zone" */
+        #main-stage {
+            position: absolute;
+            top: 5%; left: 5%; width: 90%; height: 90%;
+            z-index: 50; /* Above the background ads */
+            background: #000;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+            display: flex; align-items: center; justify-content: center;
+        }
+        iframe#player { width: 100%; height: 100%; border: none; }
+
+        /* Ghost Ad Frame Styling */
+        .ghost-zone {
+            position: absolute;
+            pointer-events: none; /* User clicks through to the player */
+            overflow: hidden;
+            z-index: 10; /* Below the main stage */
+            transition: transform 10s linear;
+        }
+
+        /* HUD for Monitoring (Auto-hides) */
+        #hud {
+            position: fixed; top: 10px; left: 10px; color: #00ff00;
+            background: rgba(0,0,0,0.7); padding: 8px; font-size: 11px;
+            border-radius: 5px; z-index: 100; border: 1px solid #333;
+        }
     </style>
-    <script src="https://pl29004356.profitablecpmratenetwork.com/32/17/9c/32179cb1c7c7b06a5f9bb3a4caaeba67.js"></script>
-    <script src="https://pl29004357.profitablecpmratenetwork.com/03/30/0f/03300f8f3d78b3d2afb64dde658331f7.js"></script>
 </head>
 <body>
-    <div class="ad-top"><script type="text/javascript">
-	atOptions = { 'key' : '860be7e9899fc5f29535810d9fc763b8', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
-</script>
-<script type="text/javascript" src="https://www.highperformanceformat.com/860be7e9899fc5f29535810d9fc763b8/invoke.js"></script></div>
-    <div class="main">
-        <div class="ad-side"><script type="text/javascript">
-	atOptions = { 'key' : '8b92ec3bd7296a94581a6bacd0a2d94a', 'format' : 'iframe', 'height' : 600, 'width' : 160, 'params' : {} };
-</script>
-<script type="text/javascript" src="https://www.highperformanceformat.com/8b92ec3bd7296a94581a6bacd0a2d94a/invoke.js"></script></div>
-        <div id="video-container">
-            <div id="revenue-trigger" onclick="window.open('https://www.profitablecpmratenetwork.com/tmit15ri4?key=43c4129bda0d3aa9e82a122ef3875019', '_blank'); this.style.display='none';"></div>
-            <iframe src="https://www.youtube.com/embed/videoseries?list=PLAwL8Kl4ijMqNoLU-rg5wIxXn5tciXIql" width="100%" height="100%" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
-        <div class="ad-side"><script type="text/javascript">
-	atOptions = { 'key' : '8b92ec3bd7296a94581a6bacd0a2d94a', 'format' : 'iframe', 'height' : 600, 'width' : 160, 'params' : {} };
-</script>
-<script type="text/javascript" src="https://www.highperformanceformat.com/8b92ec3bd7296a94581a6bacd0a2d94a/invoke.js"></script></div>
+
+    <div id="hud">System: Initializing Hardware Sync...</div>
+
+    <div id="main-stage">
+        <iframe id="player" src="https://www.youtube.com/embed/LIVE_STREAM_ID" allowfullscreen></iframe>
     </div>
-    <div class="ad-bottom"><script async="async" data-cfasync="false" src="https://pl29004478.profitablecpmratenetwork.com/e3d89d23eaa3b2bd4a37f390debd65cb/invoke.js"></script>
-<div id="container-e3d89d23eaa3b2bd4a37f390debd65cb"></div></div>
+
+    <div id="perimeter-matrix"></div>
+
+    <script>
+        // --- [ADSTERRA CONFIG] ---
+        // Fill these with your actual Tag IDs from Adsterra
+        const TAG_POOL = ["tag_1", "tag_2", "tag_3", "tag_4", "tag_5", "tag_6"];
+
+        // --- [ADAPTIVE ENGINE] ---
+        function detectHardware() {
+            const ram = navigator.deviceMemory || 4;
+            const isTV = /SmartTV|Android TV|GoogleTV/i.test(navigator.userAgent);
+            
+            if (ram >= 8 && !isTV) {
+                return { name: "PC_BLITZ", splitCount: 3, layers: 2, opacity: 0.12 }; // 24 Ads Perimeter
+            } else {
+                return { name: "TV_STABLE", splitCount: 2, layers: 1, opacity: 0.15 }; // 8 Ads Perimeter
+            }
+        }
+
+        const config = detectHardware();
+        document.getElementById('hud').innerText = `PROFILE: ${config.name} | G5 ACTIVE | OPACITY: ${config.opacity * 100}%`;
+
+        // --- [MATRIX DEPLOYMENT] ---
+        function createZone(side, posIndex, layerNum) {
+            const zone = document.createElement('div');
+            zone.className = 'ghost-zone';
+            zone.style.opacity = config.opacity;
+            
+            // Layout Logic: Divide each side into splitCount zones
+            const size = 100 / config.splitCount;
+            const offset = posIndex * size;
+
+            if (side === 'top') {
+                zone.style.top = '0'; zone.style.left = offset + '%';
+                zone.style.width = size + '%'; zone.style.height = '10%';
+            } else if (side === 'bottom') {
+                zone.style.bottom = '0'; zone.style.left = offset + '%';
+                zone.style.width = size + '%'; zone.style.height = '10%';
+            } else if (side === 'left') {
+                zone.style.left = '0'; zone.style.top = offset + '%';
+                zone.style.width = '10%'; zone.style.height = size + '%';
+            } else if (side === 'right') {
+                zone.style.right = '0'; zone.style.top = offset + '%';
+                zone.style.width = '10%'; zone.style.height = size + '%';
+            }
+
+            // Inject Adsterra Script (Standard Invoke)
+            const tag = TAG_POOL[Math.floor(Math.random() * TAG_POOL.length)];
+            const adScript = document.createElement('script');
+            adScript.type = 'text/javascript';
+            adScript.src = `//pl2345678.highperformanceformat.com/${tag}/invoke.js`; 
+            
+            zone.appendChild(adScript);
+            document.getElementById('perimeter-matrix').appendChild(zone);
+        }
+
+        function launchEngine() {
+            const sides = ['top', 'bottom', 'left', 'right'];
+            for (let l = 0; l < config.layers; l++) {
+                sides.forEach(side => {
+                    for (let s = 0; s < config.splitCount; s++) {
+                        // Staggered boot to avoid browser freeze
+                        setTimeout(() => {
+                            createZone(side, s, l);
+                        }, (l * 1000) + (s * 200));
+                    }
+                });
+            }
+        }
+
+        // --- [HUMAN-FLOW SIMULATION] ---
+        // Jitters the ads slightly to bypass static-view detection
+        setInterval(() => {
+            const zones = document.querySelectorAll('.ghost-zone');
+            zones.forEach(z => {
+                const move = (Math.random() * 4) - 2;
+                z.style.transform = `translate(${move}px, ${move}px)`;
+            });
+        }, 12000);
+
+        // Start when ready
+        window.onload = launchEngine;
+    </script>
 </body>
 </html>
